@@ -7,10 +7,12 @@ import {
   Command,
   GalleryVerticalEnd,
   LayoutDashboard,
+  Map,
   Settings,
   Settings2,
   UploadCloud,
   Wallet,
+  Wrench,
 } from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
@@ -72,6 +74,18 @@ const NAVIGATION_CONFIG = {
       icon: Wallet,
       isActive: false,
     },
+    DAILY_DISTANCE: {
+      title: "Daily Distance",
+      url: "/daily-distance-report",
+      icon: Map,
+      isActive: false,
+    },
+    SERVICE: {
+      title: "Service",
+      url: "/service",
+      icon: Wrench,
+      isActive: false,
+    },
   },
 
   MODULES: {
@@ -88,6 +102,14 @@ const NAVIGATION_CONFIG = {
         {
           title: "Vehicle",
           url: "/vehicle",
+        },
+        {
+          title: "Vendor",
+          url: "/vendor",
+        },
+        {
+          title: "Service Type",
+          url: "/service-types",
         },
       ],
     },
@@ -150,10 +172,6 @@ const NAVIGATION_CONFIG = {
           url: "/final-performance-report",
         },
         {
-          title: "Daily Distance",
-          url: "/daily-distance-report",
-        },
-        {
           title: "Vehicle Assignment",
           url: "/assignment-vehicle-report",
         },
@@ -204,6 +222,8 @@ const USER_ROLE_PERMISSIONS = {
       "PENALTY",
       "VEHICLE_ALTERNATE_RIDE",
       "DRIVER_PAYMENT",
+      "DAILY_DISTANCE",
+      "SERVICE",
       "REPORT",
     ],
     navMainReport: ["REPORT", "SETTINGS"],
@@ -220,6 +240,8 @@ const USER_ROLE_PERMISSIONS = {
       "PENALTY",
       "VEHICLE_ALTERNATE_RIDE",
       "DRIVER_PAYMENT",
+      "DAILY_DISTANCE",
+      "SERVICE",
       "REPORT",
     ],
     navMainReport: ["REPORT", "SETTINGS"],

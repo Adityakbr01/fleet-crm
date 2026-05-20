@@ -7,6 +7,12 @@ import { Download, Loader, Search } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
   Table,
   TableBody,
   TableCell,
@@ -45,6 +51,11 @@ const DailyDistanceReport = () => {
   const [reportData, setReportData] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [detailData, setDetailData] = useState([]);
+  const [isDetailLoading, setIsDetailLoading] = useState(false);
+  const [selectedVehicle, setSelectedVehicle] = useState("");
 
   const token = Cookies.get("token");
 
@@ -89,6 +100,43 @@ const DailyDistanceReport = () => {
     }
   };
 
+  const fetchVehicleDetails = async (vehicleNumber) => {
+    setSelectedVehicle(vehicleNumber);
+    setIsDetailModalOpen(true);
+    setIsDetailLoading(true);
+    setDetailData([]);
+
+    const formData = new FormData();
+    formData.append("from_date", fromDate);
+    formData.append("to_date", toDate);
+    formData.append("vehicle_number_plate", vehicleNumber);
+
+    try {
+      const response = await axios.post(
+        `${BASE_URL}/api/daily-distance-detail-report`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      if (response?.data?.data) {
+        setDetailData(response.data.data);
+      } else {
+        toast.error("No details found for the selected vehicle");
+      }
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message || "Failed to fetch vehicle details",
+      );
+    } finally {
+      setIsDetailLoading(false);
+    }
+  };
+
   const filteredData = reportData
     ? reportData.filter((row) =>
         Object.values(row).some((val) =>
@@ -115,7 +163,9 @@ const DailyDistanceReport = () => {
         Variant: row.vehicle_variant,
         "Vehicle Distance": row.vehicle_distance,
         "Trip Distance": row.trip_distance,
-        "Distance Diff": parseFloat(row.vehicle_distance - row.trip_distance || 0).toFixed(2),
+        "Distance Diff": parseFloat(
+          row.vehicle_distance - row.trip_distance || 0,
+        ).toFixed(2),
         "Driver Name": row.driver_name || "N/A",
       }));
 
@@ -283,7 +333,14 @@ const DailyDistanceReport = () => {
                       <TableRow key={index} className="hover:bg-muted/50">
                         <TableCell>{index + 1}</TableCell>
                         <TableCell className="font-medium whitespace-nowrap">
-                          {row.vehicle_number_plate}
+                          <button
+                            onClick={() =>
+                              fetchVehicleDetails(row.vehicle_number_plate)
+                            }
+                            className="text-primary hover:underline font-semibold"
+                          >
+                            {row.vehicle_number_plate}
+                          </button>
                         </TableCell>
                         <TableCell className="whitespace-nowrap">
                           {row.driver_name || (
@@ -302,7 +359,9 @@ const DailyDistanceReport = () => {
                           {parseFloat(row.trip_distance || 0).toFixed(2)}
                         </TableCell>
                         <TableCell className="text-right">
-                          {parseFloat(row.vehicle_distance - row.trip_distance || 0).toFixed(2)}
+                          {parseFloat(
+                            row.vehicle_distance - row.trip_distance || 0,
+                          ).toFixed(2)}
                         </TableCell>
                       </TableRow>
                     ))}
@@ -313,6 +372,58 @@ const DailyDistanceReport = () => {
           </CardContent>
         </Card>
       </div>
+
+      <Dialog open={isDetailModalOpen} onOpenChange={setIsDetailModalOpen}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Vehicle Details: {selectedVehicle}</DialogTitle>
+          </DialogHeader>
+          <div className="mt-4">
+            {isDetailLoading ? (
+              <div className="flex justify-center items-center py-10">
+                <Loader className="h-6 w-6 animate-spin text-muted-foreground" />
+              </div>
+            ) : detailData.length === 0 ? (
+              <p className="text-center text-muted-foreground">
+                No details available.
+              </p>
+            ) : (
+              <div className="overflow-x-auto border rounded-lg">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-muted/50">
+                      {Object.keys(detailData[0] || {}).map((header, idx) => (
+                        <TableHead
+                          key={idx}
+                          className="whitespace-nowrap font-semibold capitalize"
+                        >
+                          {header.replace(/_/g, " ")}
+                        </TableHead>
+                      ))}
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {detailData.map((row, index) => (
+                      <TableRow key={index} className="hover:bg-muted/50">
+                        {Object.values(row).map((val, cellIdx) => (
+                          <TableCell
+                            key={cellIdx}
+                            className="whitespace-nowrap"
+                          >
+                            {val !== null && val !== undefined
+                              ? String(val)
+                              : "N/A"}
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

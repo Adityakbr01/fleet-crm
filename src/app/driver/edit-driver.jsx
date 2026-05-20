@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { DatePicker } from "@/components/ui/date-picker";
 import {
   Select,
   SelectContent,
@@ -101,6 +102,19 @@ const EditDriver = () => {
     setIsFormDirty(true);
   };
 
+  const { data: pendingUuids } = useQuery({
+    queryKey: ["pending-uuids"],
+    queryFn: async () => {
+      const res = await axios.get(
+        "https://dfcgroup.in/fleetmanagementapi/public/api/pending-uber-driver-uid",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
+      return res.data?.data || [];
+    },
+  });
+
   const { data: driverData, isLoading } = useQuery({
     queryKey: ["driver", id],
     queryFn: async () => {
@@ -132,9 +146,11 @@ const EditDriver = () => {
       setInitialDriver(cleanedData);
 
       let image_url_array = response.data?.image_url;
-      
+
       if (!image_url_array || image_url_array.length === 0) {
-        const cachedDrivers = queryClient.getQueriesData({ queryKey: ["drivers"] });
+        const cachedDrivers = queryClient.getQueriesData({
+          queryKey: ["drivers"],
+        });
         for (const [key, data] of cachedDrivers) {
           if (data && data.image_url && data.image_url.length > 0) {
             image_url_array = data.image_url;
@@ -164,8 +180,8 @@ const EditDriver = () => {
           if (!src.startsWith("http") && driverImageBaseUrl) {
             src = `${driverImageBaseUrl}${src}`;
           } else if (!src.startsWith("http")) {
-             // If base URL completely failed to generate, we'll try to rely on a sensible default fallback commonly used here
-             src = `${BASE_URL}/assets/images/Driver/${src}`; 
+            // If base URL completely failed to generate, we'll try to rely on a sensible default fallback commonly used here
+            src = `${BASE_URL}/assets/images/Driver/${src}`;
           }
           setPreview((prev) => ({ ...prev, [field]: src }));
         }
@@ -209,33 +225,9 @@ const EditDriver = () => {
     const newErrors = {};
     let isValid = true;
 
-    const requiredTextFields = [
-      "name",
-      "surname",
-      "email",
-      "mobile",
-      "alternate_mobile_no",
-      "dob",
-      "father_name",
-      "doj",
-      "aadhar_no",
-      "dl_no",
-      "dl_issue_date",
-      "dl_expiry_date",
-      "dl_submitted",
-      "pcc_status",
-      "you_worked_before_company",
-      "driving_experience",
-    ];
+    const requiredTextFields = ["name", "mobile", "aadhar_no", "dl_no"];
 
-    const requiredImageFields = [
-      "selfie_image",
-      "aadhar_back_image",
-      "driving_licence_front_image",
-      "driving_licence_back_image",
-      "pancard_image",
-      "bank_passbook_cancelled_cheque_image",
-    ];
+    const requiredImageFields = [];
 
     requiredTextFields.forEach((field) => {
       const val = driver[field];
@@ -303,7 +295,9 @@ const EditDriver = () => {
       if (data.code === 201) {
         queryClient.invalidateQueries(["drivers"]);
         toast.success(data.message || "Driver Updated Successfully");
-        navigate(`/driver${searchParams.toString() ? `?${searchParams.toString()}` : ""}`);
+        navigate(
+          `/driver${searchParams.toString() ? `?${searchParams.toString()}` : ""}`,
+        );
       } else {
         toast.error(data.message || "Driver Update Error");
       }
@@ -417,13 +411,38 @@ const EditDriver = () => {
                   <Label htmlFor="UUID" className="text-xs font-medium">
                     UUID
                   </Label>
-                  <Input
-                    id="UUID"
-                    name="UUID"
+                  <Select
                     value={driver.UUID}
-                    onChange={onInputChange}
-                    placeholder="Enter UUID"
-                  />
+                    onValueChange={(value) =>
+                      setDriver((prev) => ({ ...prev, UUID: value }))
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select UUID" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {pendingUuids?.map((item) => (
+                        <SelectItem
+                          key={item.id}
+                          value={
+                            item.uber_driver_uid || item.UUID || String(item.id)
+                          }
+                        >
+                          {item.uber_driver_uid || item.UUID || item.id}
+                        </SelectItem>
+                      ))}
+                      {driver.UUID &&
+                        !pendingUuids?.find(
+                          (i) =>
+                            (i.uber_driver_uid || i.UUID || String(i.id)) ===
+                            driver.UUID,
+                        ) && (
+                          <SelectItem value={driver.UUID}>
+                            {driver.UUID}
+                          </SelectItem>
+                        )}
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div className="">
@@ -444,7 +463,7 @@ const EditDriver = () => {
 
                 <div className="">
                   <Label htmlFor="surname" className="text-xs font-medium">
-                    Last Name *
+                    Last Name
                   </Label>
                   <Input
                     id="surname"
@@ -460,7 +479,7 @@ const EditDriver = () => {
 
                 <div className="">
                   <Label htmlFor="email" className="text-xs font-medium">
-                    Email *
+                    Email
                   </Label>
                   <Input
                     id="email"
@@ -499,7 +518,7 @@ const EditDriver = () => {
                       htmlFor="alternate_mobile_no"
                       className="text-xs font-medium"
                     >
-                      Alternate Mobile *
+                      Alternate Mobile
                     </Label>
                     <Input
                       id="alternate_mobile_no"
@@ -519,14 +538,14 @@ const EditDriver = () => {
 
                   <div className="">
                     <Label htmlFor="dob" className="text-xs font-medium">
-                      Date Of Birth *
+                      Date Of Birth
                     </Label>
-                    <Input
-                      id="dob"
-                      name="dob"
-                      type="date"
-                      value={driver.dob}
-                      onChange={onInputChange}
+                    <DatePicker
+                      date={driver.dob}
+                      setDate={(val) =>
+                        setDriver((prev) => ({ ...prev, dob: val }))
+                      }
+                      hasError={!!errors?.dob}
                     />
                     {errors?.dob && (
                       <p className="text-red-500 text-xs">{errors.dob}</p>
@@ -538,7 +557,7 @@ const EditDriver = () => {
                       htmlFor="father_name"
                       className="text-xs font-medium"
                     >
-                      Father Name *
+                      Father Name
                     </Label>
                     <Input
                       id="father_name"
@@ -556,14 +575,14 @@ const EditDriver = () => {
 
                   <div className="">
                     <Label htmlFor="doj" className="text-xs font-medium">
-                      Date of Joining *
+                      Date of Joining
                     </Label>
-                    <Input
-                      id="doj"
-                      name="doj"
-                      type="date"
-                      value={driver.doj}
-                      onChange={onInputChange}
+                    <DatePicker
+                      date={driver.doj}
+                      setDate={(val) =>
+                        setDriver((prev) => ({ ...prev, doj: val }))
+                      }
+                      hasError={!!errors?.doj}
                     />
                     {errors?.doj && (
                       <p className="text-red-500 text-xs">{errors.doj}</p>
@@ -612,14 +631,14 @@ const EditDriver = () => {
                     htmlFor="dl_issue_date"
                     className="text-xs font-medium"
                   >
-                    DL Issue Date *
+                    DL Issue Date
                   </Label>
-                  <Input
-                    id="dl_issue_date"
-                    name="dl_issue_date"
-                    type="date"
-                    value={driver.dl_issue_date}
-                    onChange={onInputChange}
+                  <DatePicker
+                    date={driver.dl_issue_date}
+                    setDate={(val) =>
+                      setDriver((prev) => ({ ...prev, dl_issue_date: val }))
+                    }
+                    hasError={!!errors?.dl_issue_date}
                   />
                   {errors?.dl_issue_date && (
                     <p className="text-red-500 text-xs">
@@ -632,14 +651,14 @@ const EditDriver = () => {
                     htmlFor="dl_expiry_date"
                     className="text-xs font-medium"
                   >
-                    DL Expiry Date *
+                    DL Expiry Date
                   </Label>
-                  <Input
-                    id="dl_expiry_date"
-                    name="dl_expiry_date"
-                    type="date"
-                    value={driver.dl_expiry_date}
-                    onChange={onInputChange}
+                  <DatePicker
+                    date={driver.dl_expiry_date}
+                    setDate={(val) =>
+                      setDriver((prev) => ({ ...prev, dl_expiry_date: val }))
+                    }
+                    hasError={!!errors?.dl_expiry_date}
                   />
                   {errors?.dl_expiry_date && (
                     <p className="text-red-500 text-xs">
@@ -650,7 +669,7 @@ const EditDriver = () => {
 
                 <div className="">
                   <Label htmlFor="dl_submitted" className="text-xs font-medium">
-                    DL Submitted *
+                    DL Submitted
                   </Label>
                   <Select
                     value={driver.dl_submitted}
@@ -675,7 +694,7 @@ const EditDriver = () => {
 
                 <div className="">
                   <Label htmlFor="pcc_status" className="text-xs font-medium">
-                    Do You Have PCC Certificate? *
+                    Do You Have PCC Certificate?
                   </Label>
                   <Select
                     value={driver.pcc_status}
@@ -701,7 +720,7 @@ const EditDriver = () => {
                     htmlFor="you_worked_before_company"
                     className="text-xs font-medium"
                   >
-                    Worked Before Company *
+                    Worked Before Company
                   </Label>
                   <Select
                     value={driver.you_worked_before_company}
@@ -739,7 +758,7 @@ const EditDriver = () => {
                     htmlFor="driving_experience"
                     className="text-xs font-medium"
                   >
-                    Driving Experience *
+                    Driving Experience
                   </Label>
                   <Select
                     id="driving_experience"
@@ -943,7 +962,6 @@ const EditDriver = () => {
                   <ImageUpload
                     id="selfie_image"
                     label="Selfie Image"
-                    required={!preview.selfie_image}
                     previewImage={preview.selfie_image}
                     onFileChange={(e) =>
                       handleImageChange("selfie_image", e.target.files?.[0])
@@ -979,7 +997,6 @@ const EditDriver = () => {
                   <ImageUpload
                     id="aadhar_back_image"
                     label="Aadhar Back"
-                    required={!preview.aadhar_back_image}
                     previewImage={preview.aadhar_back_image}
                     onFileChange={(e) =>
                       handleImageChange(
@@ -999,7 +1016,6 @@ const EditDriver = () => {
                   <ImageUpload
                     id="driving_licence_front_image"
                     label="DL Front"
-                    required={!preview.driving_licence_front_image}
                     previewImage={preview.driving_licence_front_image}
                     onFileChange={(e) =>
                       handleImageChange(
@@ -1021,7 +1037,6 @@ const EditDriver = () => {
                   <ImageUpload
                     id="driving_licence_back_image"
                     label="DL Back"
-                    required={!preview.driving_licence_back_image}
                     previewImage={preview.driving_licence_back_image}
                     onFileChange={(e) =>
                       handleImageChange(
@@ -1043,7 +1058,6 @@ const EditDriver = () => {
                   <ImageUpload
                     id="pancard_image"
                     label="PAN Card"
-                    required={!preview.pancard_image}
                     previewImage={preview.pancard_image}
                     onFileChange={(e) =>
                       handleImageChange("pancard_image", e.target.files?.[0])
@@ -1060,7 +1074,6 @@ const EditDriver = () => {
                   <ImageUpload
                     id="bank_passbook_cancelled_cheque_image"
                     label="Bank Proof (Passbook/Cheque)"
-                    required={!preview.bank_passbook_cancelled_cheque_image}
                     previewImage={preview.bank_passbook_cancelled_cheque_image}
                     onFileChange={(e) =>
                       handleImageChange(

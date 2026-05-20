@@ -48,6 +48,18 @@ import VehicleWiseSummaryReport from "@/app/report/vehicle-wise-summary-report";
 import DriverDashboard from "@/app/dashboard/driver-dashboard";
 import VehicleDashboard from "@/app/dashboard/vehicle-dashboard";
 
+import ServiceList from "@/features/Service/pages/service-list";
+import CreateService from "@/features/Service/pages/create-service";
+import EditService from "@/features/Service/pages/edit-service";
+
+import VendorList from "@/features/Vendor/pages/vendor-list";
+import CreateVendor from "@/features/Vendor/pages/create-vendor";
+import EditVendor from "@/features/Vendor/pages/edit-vendor";
+
+import ServiceTypeList from "@/features/ServiceType/pages/service-type-list";
+import CreateServiceType from "@/features/ServiceType/pages/create-service-type";
+import EditServiceType from "@/features/ServiceType/pages/edit-service-type";
+
 const Login = lazy(() => import("@/app/auth/login"));
 
 const NotFound = lazy(() => import("@/app/errors/not-found"));
@@ -206,6 +218,84 @@ function AppRoutes() {
           element={
             <Suspense fallback={<LoadingBar />}>
               <EditAlternateVehicle />
+            </Suspense>
+          }
+        />
+
+        {/* Service */}
+        <Route
+          path="/service"
+          element={
+            <Suspense fallback={<LoadingBar />}>
+              <ServiceList />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/service/service-create"
+          element={
+            <Suspense fallback={<LoadingBar />}>
+              <CreateService />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/service/service-edit/:id"
+          element={
+            <Suspense fallback={<LoadingBar />}>
+              <EditService />
+            </Suspense>
+          }
+        />
+
+        {/* Service Types */}
+        <Route
+          path="/service-types"
+          element={
+            <Suspense fallback={<LoadingBar />}>
+              <ServiceTypeList />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/service-types/service-type-create"
+          element={
+            <Suspense fallback={<LoadingBar />}>
+              <CreateServiceType />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/service-types/service-type-edit/:id"
+          element={
+            <Suspense fallback={<LoadingBar />}>
+              <EditServiceType />
+            </Suspense>
+          }
+        />
+
+        {/* Vendor */}
+        <Route
+          path="/vendor"
+          element={
+            <Suspense fallback={<LoadingBar />}>
+              <VendorList />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/vendor/vendor-create"
+          element={
+            <Suspense fallback={<LoadingBar />}>
+              <CreateVendor />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/vendor/vendor-edit/:id"
+          element={
+            <Suspense fallback={<LoadingBar />}>
+              <EditVendor />
             </Suspense>
           }
         />

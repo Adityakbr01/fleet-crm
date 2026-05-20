@@ -498,12 +498,46 @@ const DriverPerformanceReport = () => {
   const [isSyncConfirmOpen, setIsSyncConfirmOpen] = useState(false);
   const [mbgLoading, setMbgLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [lastSyncDate, setLastSyncDate] = useState(null);
   const [dates, setDates] = useState({
     fromDate: moment().subtract(6, "days").format("YYYY-MM-DD"),
     toDate: moment().format("YYYY-MM-DD"),
   });
 
   const token = Cookies.get("token");
+
+  useEffect(() => {
+    const fetchLastSyncDate = async () => {
+      try {
+        const response = await axios.get(
+          `${BASE_URL}/api/getDriverPerformanceSyncLastDate`,
+          { headers: { Authorization: `Bearer ${token}` } },
+        );
+        if (response?.data?.data) {
+          // It might be a direct date string or an array/object. We'll store the whole thing.
+          // If it's an object with `from_date` and `to_date`, keep it as an object
+          const resData = response.data.data;
+          if (typeof resData === "string") {
+            setLastSyncDate(resData);
+          } else if (resData.from_date && resData.to_date) {
+            setLastSyncDate(resData);
+          } else if (resData.last_performance_date) {
+            setLastSyncDate(resData.last_performance_date);
+          } else if (
+            Array.isArray(resData) &&
+            resData[0]?.last_performance_date
+          ) {
+            setLastSyncDate(resData[0].last_performance_date);
+          } else {
+            setLastSyncDate(JSON.stringify(resData));
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch last sync date:", error);
+      }
+    };
+    fetchLastSyncDate();
+  }, [token]);
 
   const handleDateSelect = (range, selectedDay) => {
     if (!selectedDay) return;
@@ -640,7 +674,21 @@ const DriverPerformanceReport = () => {
       <Card className="w-full">
         <CardHeader className="p-4">
           <div className="flex flex-col md:flex-row md:items-center justify-between mx-0 px-0">
-            <CardTitle>Driver Performance Report</CardTitle>
+            <div>
+              <CardTitle>Driver Performance Report</CardTitle>
+              {lastSyncDate && (
+                <p className="text-sm text-gray-500 mt-1">
+                  Last Synced:{" "}
+                  <span className="font-medium text-gray-800">
+                    {lastSyncDate?.from_date && lastSyncDate?.to_date
+                      ? `${moment(lastSyncDate.from_date).format("DD-MM-YYYY")} to ${moment(lastSyncDate.to_date).format("DD-MM-YYYY")}`
+                      : moment(lastSyncDate).isValid()
+                        ? moment(lastSyncDate).format("DD-MM-YYYY")
+                        : lastSyncDate}
+                  </span>
+                </p>
+              )}
+            </div>
             {reportData?.length > 0 && (
               <div className="relative w-full md:w-72">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -684,10 +732,6 @@ const DriverPerformanceReport = () => {
                     }}
                     onSelect={handleDateSelect}
                     initialFocus
-                    disabled={(date) =>
-                      date >
-                      moment().subtract(6, "days").startOf("day").toDate()
-                    }
                   />
                 </PopoverContent>
               </Popover>
