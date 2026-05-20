@@ -16,6 +16,11 @@ import {
   ArrowRight,
   Wallet,
   Banknote,
+  RefreshCcw,
+  Upload,
+  Clock,
+  Activity,
+  CreditCard,
 } from "lucide-react";
 
 import {
@@ -506,6 +511,156 @@ const Home = () => {
                     </div>
                   ))}
             </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* SYNC STATUS OVERVIEW */}
+      <h3 className="text-xl font-bold tracking-tight text-slate-900 mt-8 mb-4 flex items-center gap-2">
+        <RefreshCcw className="w-5 h-5 text-blue-500" />
+        System Synchronization Details
+      </h3>
+      <div className="grid gap-6 grid-cols-1 md:grid-cols-2 xl:grid-cols-4">
+        {/* Pending Upload */}
+        <Card className="border-none shadow-md bg-white hover:shadow-lg transition-shadow">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-2">
+              <Upload className="w-4 h-4 text-orange-500" />
+              Pending Uploads
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {isLoading ? (
+              <Skeleton className="h-8 w-16" />
+            ) : (
+              <div className="text-2xl font-bold tracking-tight text-slate-900">
+                {dashboardData?.data?.pending_upload || 0}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Last Trip Sync */}
+        <Card className="border-none shadow-md bg-white hover:shadow-lg transition-shadow">
+          <CardHeader className="pb-2 flex flex-row justify-between items-center">
+            <CardTitle className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-2">
+              <Clock className="w-4 h-4 text-blue-500" />
+              Last Trip Sync
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {isLoading ? (
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-3/4" />
+              </div>
+            ) : dashboardData?.data?.last_trip_sync?.length > 0 ? (
+              <div className="space-y-2">
+                {dashboardData.data.last_trip_sync.map((sync, i) => {
+                  const dateVal =
+                    sync["last_trip_request time"] ||
+                    sync.last_trip_request_time;
+                  return (
+                    <div
+                      key={i}
+                      className="flex flex-col text-sm border-b border-slate-50 pb-1 last:border-0 last:pb-0"
+                    >
+                      <span className="font-semibold text-slate-700">
+                        {sync.trip_performance_type}
+                      </span>
+                      <span className="text-xs text-slate-500">
+                        {dateVal
+                          ? moment(dateVal).isValid()
+                            ? moment(dateVal).format("DD-MM-YY")
+                            : dateVal
+                          : "N/A"}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <span className="text-sm text-slate-400 italic">
+                No sync data
+              </span>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Last Performance Sync */}
+        <Card className="border-none shadow-md bg-white hover:shadow-lg transition-shadow">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-2">
+              <Activity className="w-4 h-4 text-emerald-500" />
+              Last Performance Sync
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {isLoading ? (
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-3/4" />
+              </div>
+            ) : dashboardData?.data?.last_performance_sync?.length > 0 ? (
+              <div className="space-y-2">
+                {dashboardData.data.last_performance_sync.map((sync, i) => (
+                  <div
+                    key={i}
+                    className="flex flex-col text-sm border-b border-slate-50 pb-1 last:border-0 last:pb-0"
+                  >
+                    <span className="font-semibold text-slate-700">
+                      {sync.performance_type}
+                    </span>
+                    <span className="text-xs text-slate-500">
+                      {sync.last_performance_date
+                        ? moment(sync.last_performance_date).isValid()
+                          ? moment(sync.last_performance_date).format(
+                              "DD-MM-YY",
+                            )
+                          : sync.last_performance_date
+                        : "N/A"}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <span className="text-sm text-slate-400 italic">
+                No sync data
+              </span>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Last Payments Sync */}
+        <Card className="border-none shadow-md bg-white hover:shadow-lg transition-shadow">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-2">
+              <CreditCard className="w-4 h-4 text-purple-500" />
+              Last Payments Sync
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {isLoading ? (
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-full" />
+              </div>
+            ) : dashboardData?.data?.last_payments_sync?.length > 0 ? (
+              <div className="space-y-2">
+                {dashboardData.data.last_payments_sync.map((sync, i) => (
+                  <div key={i} className="text-sm text-slate-700">
+                    {sync.last_payment_date
+                      ? moment(sync.last_payment_date).isValid()
+                        ? moment(sync.last_payment_date).format("DD-MM-YY")
+                        : sync.last_payment_date
+                      : "N/A"}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <span className="text-sm text-slate-400 italic">
+                No sync data
+              </span>
+            )}
           </CardContent>
         </Card>
       </div>
