@@ -1,9 +1,9 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { useCreateServiceType } from "@/features/ServiceType/hooks/use-service-types";
 import ServiceTypeForm from "@/features/ServiceType/forms/service-type-form";
 import { useQueryClient } from "@tanstack/react-query";
-import { ChevronLeft, Settings2 } from "lucide-react";
+import { ArrowLeft, Settings2 } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -64,34 +64,41 @@ const CreateServiceType = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto p-4 space-y-6 bg-[#f8f9fa] min-h-screen">
-      <div className="flex items-center gap-2">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => navigate("/service-types")}
-          className="text-slate-600 hover:text-slate-900 px-2 h-8"
-        >
-          <ChevronLeft className="h-4 w-4 mr-1" /> Back to Service Types
-        </Button>
-      </div>
-
-      <Card className="border-none shadow-md bg-white overflow-hidden">
-        <CardHeader className="bg-slate-50 border-b border-slate-100 py-4 px-6 flex flex-row items-center gap-3">
-          <div className="p-2 bg-[var(--team-color)]/10 text-[var(--team-color)] rounded-lg">
-            <Settings2 className="h-5 w-5" />
+    <div className="w-full space-y-1 p-4">
+      <Card>
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 p-4">
+          <div className="flex items-start gap-3">
+            <div className="w-5 h-5 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
+              <Settings2 className="text-muted-foreground w-5 h-5" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <div>
+                  <h1 className="text-md font-semibold text-gray-900">
+                    Create Service Type
+                  </h1>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Add a new service type definition
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
-          <div>
-            <CardTitle className="text-lg font-bold text-slate-950">
-              Create Service Type
-            </CardTitle>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              Add a new service type definition
-            </p>
-          </div>
-        </CardHeader>
 
-        <CardContent className="p-6">
+          <Button
+            onClick={() => navigate("/service-types")}
+            variant="outline"
+            size="sm"
+            className="flex items-center gap-1 flex-shrink-0 mt-2 sm:mt-0"
+          >
+            <ArrowLeft className="w-3 h-3" />
+            Back
+          </Button>
+        </div>
+      </Card>
+
+      <Card>
+        <CardContent className="p-4">
           <ServiceTypeForm
             formData={formData}
             onInputChange={handleInputChange}

@@ -3,9 +3,8 @@ import { useFetchServices } from "@/features/Service/hooks/use-services";
 import ServiceTable from "@/features/Service/components/service-table";
 import { useQueryClient } from "@tanstack/react-query";
 import Cookies from "js-cookie";
-import { SquarePlus, Wrench } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const ServiceList = () => {
   const queryClient = useQueryClient();
@@ -100,29 +99,7 @@ const ServiceList = () => {
   }
 
   return (
-    <div className="max-w-full p-4 space-y-4 bg-[#f8f9fa] min-h-screen animate-fade-in">
-      {/* Header */}
-      <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-            <Wrench className="h-5 w-5 text-[var(--team-color)]" />
-            Vehicle Services
-          </h2>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            Manage garage visits, service costs, and detailed repair logs
-          </p>
-        </div>
-
-        <div className="flex items-center gap-2 self-end md:self-auto">
-          <Link to="/service/service-create" onClick={storeCurrentPage}>
-            <Button className="bg-[var(--team-color)] hover:bg-[var(--team-color)]/90 text-white font-medium shadow-sm transition-all active:scale-[0.98]">
-              <SquarePlus className="h-4 w-4 mr-2" /> Log Service
-            </Button>
-          </Link>
-        </div>
-      </div>
-
-      {/* Services Table Component */}
+    <div className="max-w-full p-2">
       <ServiceTable
         servicesList={servicesList}
         isFetching={isFetching}
@@ -135,6 +112,7 @@ const ServiceList = () => {
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
         onEditService={handleEditService}
+        storeCurrentPage={storeCurrentPage}
       />
     </div>
   );
