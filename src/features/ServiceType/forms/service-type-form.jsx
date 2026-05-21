@@ -8,7 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader } from "lucide-react";
+import { Loader, Settings2 } from "lucide-react";
 
 const ServiceTypeForm = ({
   formData,
@@ -20,90 +20,81 @@ const ServiceTypeForm = ({
   onCancel,
 }) => {
   return (
-    <form onSubmit={onSubmit} className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
-        {/* Service Type Name */}
-        <div className="space-y-1.5 md:col-span-2">
-          <Label
-            htmlFor="service_types"
-            className="text-xs font-semibold text-slate-700"
-          >
-            Service Type Name <span className="text-rose-500">*</span>
-          </Label>
-          <Input
-            id="service_types"
-            placeholder="e.g. ENGINE OIL CHANGE"
-            value={formData.service_types}
-            onChange={(e) => onInputChange("service_types", e.target.value)}
-            className={`text-xs h-10 border-slate-200 focus:border-slate-300 focus:ring-slate-100 ${
-              errors.service_types
-                ? "border-rose-500 focus:border-rose-500 focus:ring-rose-100"
-                : ""
-            }`}
-          />
-          {errors.service_types && (
-            <p className="text-[10px] text-rose-500 font-medium">
-              {errors.service_types}
-            </p>
-          )}
+    <form onSubmit={onSubmit} className="space-y-3">
+      <div className="space-y-1">
+        <div className="flex items-center p-1 gap-2 text-sm rounded-md px-1 font-medium bg-[var(--team-color)] text-white">
+          <Settings2 className="w-4 h-4" />
+          Service Type Details
         </div>
 
-        {/* Status Dropdown (visible in edit mode) */}
-        {isEditMode && (
-          <div className="space-y-1.5 md:col-span-2 flex flex-col justify-end">
-            <Label
-              htmlFor="service_types_status"
-              className="text-xs font-semibold text-slate-700"
-            >
-              Status <span className="text-rose-500">*</span>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Service Type Name */}
+          <div>
+            <Label htmlFor="service_types" className="text-xs font-medium">
+              Service Type Name *
             </Label>
-            <Select
-              value={formData.service_types_status}
-              onValueChange={(val) => onInputChange("service_types_status", val)}
-            >
-              <SelectTrigger
-                id="service_types_status"
-                className="h-10 text-xs border-slate-200 focus:ring-slate-100"
-              >
-                <SelectValue placeholder="Select status..." />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Active" className="text-xs">
-                  Active
-                </SelectItem>
-                <SelectItem value="Inactive" className="text-xs">
-                  Inactive
-                </SelectItem>
-              </SelectContent>
-            </Select>
+            <Input
+              id="service_types"
+              placeholder="e.g. ENGINE OIL CHANGE"
+              value={formData.service_types}
+              onChange={(e) => onInputChange("service_types", e.target.value)}
+              className={errors.service_types ? "border-red-500" : ""}
+            />
+            {errors.service_types && (
+              <p className="text-red-500 text-xs">
+                {errors.service_types}
+              </p>
+            )}
           </div>
-        )}
+
+          {/* Status Dropdown (visible in edit mode) */}
+          {isEditMode && (
+            <div>
+              <Label htmlFor="service_types_status" className="text-xs font-medium">
+                Status *
+              </Label>
+              <Select
+                value={formData.service_types_status}
+                onValueChange={(val) => onInputChange("service_types_status", val)}
+              >
+                <SelectTrigger id="service_types_status">
+                  <SelectValue placeholder="Select status..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Active">Active</SelectItem>
+                  <SelectItem value="Inactive">Inactive</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Form Buttons */}
-      <div className="flex items-center justify-end gap-2 pt-4 border-t border-slate-100">
-        <Button
-          variant="outline"
-          type="button"
-          onClick={onCancel}
-          className="h-10 px-5 text-xs font-medium border-slate-200 rounded-lg"
-        >
-          Cancel
-        </Button>
+      <div className="flex gap-3 pt-6 border-t">
         <Button
           type="submit"
           disabled={isSubmitting}
-          className="h-10 px-6 text-xs font-semibold bg-[var(--team-color)] hover:bg-[var(--team-color)]/90 text-white rounded-lg shadow-sm"
+          className="flex items-center gap-2 bg-[var(--team-color)] hover:bg-[var(--team-color)]/90 text-white"
         >
           {isSubmitting ? (
             <>
-              <Loader className="mr-2 h-4 w-4 animate-spin" /> Saving...
+              <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              Submitting...
             </>
-          ) : isEditMode ? (
-            "Update Service Type"
           ) : (
-            "Save Service Type"
+            <>
+              <Settings2 className="w-4 h-4" />
+              {isEditMode ? "Update Service Type" : "Create Service Type"}
+            </>
           )}
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onCancel}
+        >
+          Cancel
         </Button>
       </div>
     </form>
@@ -111,3 +102,4 @@ const ServiceTypeForm = ({
 };
 
 export default ServiceTypeForm;
+

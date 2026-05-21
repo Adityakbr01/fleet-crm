@@ -3,9 +3,8 @@ import { useFetchServiceTypes, useUpdateServiceTypeStatus } from "@/features/Ser
 import ServiceTypeTable from "@/features/ServiceType/components/service-type-table";
 import { useQueryClient } from "@tanstack/react-query";
 import Cookies from "js-cookie";
-import { SquarePlus, Settings2 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 const ServiceTypeList = () => {
@@ -120,27 +119,7 @@ const ServiceTypeList = () => {
   }
 
   return (
-    <div className="max-w-full p-4 space-y-4 bg-[#f8f9fa] min-h-screen animate-fade-in">
-      <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-            <Settings2 className="h-5 w-5 text-[var(--team-color)]" />
-            Service Types Master
-          </h2>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            Manage different types of services provided for vehicles
-          </p>
-        </div>
-
-        <div className="flex items-center gap-2 self-end md:self-auto">
-          <Link to="/service-types/service-type-create" onClick={storeCurrentPage}>
-            <Button className="bg-[var(--team-color)] hover:bg-[var(--team-color)]/90 text-white font-medium shadow-sm transition-all active:scale-[0.98]">
-              <SquarePlus className="h-4 w-4 mr-2" /> Add Service Type
-            </Button>
-          </Link>
-        </div>
-      </div>
-
+    <div className="max-w-full p-2">
       <ServiceTypeTable
         serviceTypesList={serviceTypesList}
         isFetching={isFetching}
@@ -155,6 +134,7 @@ const ServiceTypeList = () => {
         onEditServiceType={handleEditServiceType}
         onStatusToggle={handleStatusToggle}
         togglingId={togglingId}
+        storeCurrentPage={storeCurrentPage}
       />
     </div>
   );

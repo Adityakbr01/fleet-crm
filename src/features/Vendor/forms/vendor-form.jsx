@@ -9,7 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader } from "lucide-react";
+import { Loader, Store } from "lucide-react";
 
 const VendorForm = ({
   formData,
@@ -21,198 +21,160 @@ const VendorForm = ({
   onCancel,
 }) => {
   return (
-    <form onSubmit={onSubmit} className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
-        {/* Vendor Name */}
-        <div className="space-y-1.5">
-          <Label
-            htmlFor="vendor_name"
-            className="text-xs font-semibold text-slate-700"
-          >
-            Vendor Name <span className="text-rose-500">*</span>
-          </Label>
-          <Input
-            id="vendor_name"
-            placeholder="Enter vendor or garage name"
-            value={formData.vendor_name}
-            onChange={(e) => onInputChange("vendor_name", e.target.value)}
-            className={`text-xs h-10 border-slate-200 focus:border-slate-300 focus:ring-slate-100 ${
-              errors.vendor_name
-                ? "border-rose-500 focus:border-rose-500 focus:ring-rose-100"
-                : ""
-            }`}
-          />
-          {errors.vendor_name && (
-            <p className="text-[10px] text-rose-500 font-medium">
-              {errors.vendor_name}
-            </p>
-          )}
+    <form onSubmit={onSubmit} className="space-y-3">
+      <div className="space-y-1">
+        <div className="flex items-center p-1 gap-2 text-sm rounded-md px-1 font-medium bg-[var(--team-color)] text-white">
+          <Store className="w-4 h-4" />
+          Vendor Details
         </div>
 
-        {/* Vendor Mobile */}
-        <div className="space-y-1.5">
-          <Label
-            htmlFor="vendor_mobile"
-            className="text-xs font-semibold text-slate-700"
-          >
-            Mobile Number
-          </Label>
-          <Input
-            id="vendor_mobile"
-            placeholder="Enter 10-digit mobile number"
-            value={formData.vendor_mobile}
-            onChange={(e) => onInputChange("vendor_mobile", e.target.value)}
-            className={`text-xs h-10 border-slate-200 focus:border-slate-300 focus:ring-slate-100 ${
-              errors.vendor_mobile
-                ? "border-rose-500 focus:border-rose-500 focus:ring-rose-100"
-                : ""
-            }`}
-          />
-          {errors.vendor_mobile && (
-            <p className="text-[10px] text-rose-500 font-medium">
-              {errors.vendor_mobile}
-            </p>
-          )}
-        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {/* Vendor Name */}
+          <div>
+            <Label htmlFor="vendor_name" className="text-xs font-medium">
+              Vendor Name *
+            </Label>
+            <Input
+              id="vendor_name"
+              placeholder="Enter vendor or garage name"
+              value={formData.vendor_name}
+              onChange={(e) => onInputChange("vendor_name", e.target.value)}
+              className={errors.vendor_name ? "border-red-500" : ""}
+            />
+            {errors.vendor_name && (
+              <p className="text-red-500 text-xs">
+                {errors.vendor_name}
+              </p>
+            )}
+          </div>
 
-        {/* Vendor Email */}
-        <div className="space-y-1.5">
-          <Label
-            htmlFor="vendor_email"
-            className="text-xs font-semibold text-slate-700"
-          >
-            Email Address
-          </Label>
-          <Input
-            id="vendor_email"
-            type="email"
-            placeholder="Enter email address"
-            value={formData.vendor_email}
-            onChange={(e) => onInputChange("vendor_email", e.target.value)}
-            className={`text-xs h-10 border-slate-200 focus:border-slate-300 focus:ring-slate-100 ${
-              errors.vendor_email
-                ? "border-rose-500 focus:border-rose-500 focus:ring-rose-100"
-                : ""
-            }`}
-          />
-          {errors.vendor_email && (
-            <p className="text-[10px] text-rose-500 font-medium">
-              {errors.vendor_email}
-            </p>
-          )}
-        </div>
+          {/* Vendor Mobile */}
+          <div>
+            <Label htmlFor="vendor_mobile" className="text-xs font-medium">
+              Mobile Number
+            </Label>
+            <Input
+              id="vendor_mobile"
+              placeholder="Enter 10-digit mobile number"
+              value={formData.vendor_mobile}
+              onChange={(e) => onInputChange("vendor_mobile", e.target.value)}
+              className={errors.vendor_mobile ? "border-red-500" : ""}
+            />
+            {errors.vendor_mobile && (
+              <p className="text-red-500 text-xs">
+                {errors.vendor_mobile}
+              </p>
+            )}
+          </div>
 
-        {/* Vendor Type Dropdown */}
-        <div className="space-y-1.5 flex flex-col justify-end">
-          <Label
-            htmlFor="vendor_type"
-            className="text-xs font-semibold text-slate-700"
-          >
-            Vendor Type <span className="text-rose-500">*</span>
-          </Label>
-          <Select
-            value={formData.vendor_type}
-            onValueChange={(val) => onInputChange("vendor_type", val)}
-          >
-            <SelectTrigger
-              id="vendor_type"
-              className={`h-10 text-xs border-slate-200 focus:ring-slate-100 ${
-                errors.vendor_type
-                  ? "border-rose-500 focus:border-rose-500"
-                  : ""
-              }`}
-            >
-              <SelectValue placeholder="Select vendor type..." />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Garage" className="text-xs">
-                Garage
-              </SelectItem>
-              <SelectItem value="Others" className="text-xs">
-                Others
-              </SelectItem>
-            </SelectContent>
-          </Select>
-          {errors.vendor_type && (
-            <p className="text-[10px] text-rose-500 font-medium">
-              {errors.vendor_type}
-            </p>
-          )}
-        </div>
+          {/* Vendor Email */}
+          <div>
+            <Label htmlFor="vendor_email" className="text-xs font-medium">
+              Email Address
+            </Label>
+            <Input
+              id="vendor_email"
+              type="email"
+              placeholder="Enter email address"
+              value={formData.vendor_email}
+              onChange={(e) => onInputChange("vendor_email", e.target.value)}
+              className={errors.vendor_email ? "border-red-500" : ""}
+            />
+            {errors.vendor_email && (
+              <p className="text-red-500 text-xs">
+                {errors.vendor_email}
+              </p>
+            )}
+          </div>
 
-        {/* Vendor Status Dropdown (visible in edit mode) */}
-        {isEditMode && (
-          <div className="space-y-1.5 flex flex-col justify-end">
-            <Label
-              htmlFor="vendor_status"
-              className="text-xs font-semibold text-slate-700"
-            >
-              Status <span className="text-rose-500">*</span>
+          {/* Vendor Type Dropdown */}
+          <div>
+            <Label htmlFor="vendor_type" className="text-xs font-medium">
+              Vendor Type *
             </Label>
             <Select
-              value={formData.vendor_status}
-              onValueChange={(val) => onInputChange("vendor_status", val)}
+              value={formData.vendor_type}
+              onValueChange={(val) => onInputChange("vendor_type", val)}
             >
               <SelectTrigger
-                id="vendor_status"
-                className="h-10 text-xs border-slate-200 focus:ring-slate-100"
+                id="vendor_type"
+                className={errors.vendor_type ? "border-red-500" : ""}
               >
-                <SelectValue placeholder="Select status..." />
+                <SelectValue placeholder="Select vendor type..." />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="Active" className="text-xs">
-                  Active
-                </SelectItem>
-                <SelectItem value="Inactive" className="text-xs">
-                  Inactive
-                </SelectItem>
+                <SelectItem value="Garage">Garage</SelectItem>
+                <SelectItem value="Others">Others</SelectItem>
               </SelectContent>
             </Select>
+            {errors.vendor_type && (
+              <p className="text-red-500 text-xs">
+                {errors.vendor_type}
+              </p>
+            )}
           </div>
-        )}
 
-        {/* Vendor Address */}
-        <div className="space-y-1.5 md:col-span-2">
-          <Label
-            htmlFor="vendor_address"
-            className="text-xs font-semibold text-slate-700"
-          >
-            Address
-          </Label>
-          <Textarea
-            id="vendor_address"
-            placeholder="Enter physical address..."
-            value={formData.vendor_address}
-            onChange={(e) => onInputChange("vendor_address", e.target.value)}
-            className="text-xs min-h-[60px] border-slate-200 focus:border-slate-300 focus:ring-slate-100 rounded-lg"
-          />
+          {/* Vendor Status Dropdown (visible in edit mode) */}
+          {isEditMode && (
+            <div>
+              <Label htmlFor="vendor_status" className="text-xs font-medium">
+                Status *
+              </Label>
+              <Select
+                value={formData.vendor_status}
+                onValueChange={(val) => onInputChange("vendor_status", val)}
+              >
+                <SelectTrigger id="vendor_status">
+                  <SelectValue placeholder="Select status..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Active">Active</SelectItem>
+                  <SelectItem value="Inactive">Inactive</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
+          {/* Vendor Address */}
+          <div className="col-span-full">
+            <Label htmlFor="vendor_address" className="text-xs font-medium">
+              Address
+            </Label>
+            <Textarea
+              id="vendor_address"
+              placeholder="Enter physical address..."
+              value={formData.vendor_address}
+              onChange={(e) => onInputChange("vendor_address", e.target.value)}
+            />
+          </div>
         </div>
       </div>
 
       {/* Form Buttons */}
-      <div className="flex items-center justify-end gap-2 pt-4 border-t border-slate-100">
-        <Button
-          variant="outline"
-          type="button"
-          onClick={onCancel}
-          className="h-10 px-5 text-xs font-medium border-slate-200 rounded-lg"
-        >
-          Cancel
-        </Button>
+      <div className="flex gap-3 pt-6 border-t">
         <Button
           type="submit"
           disabled={isSubmitting}
-          className="h-10 px-6 text-xs font-semibold bg-[var(--team-color)] hover:bg-[var(--team-color)]/90 text-white rounded-lg shadow-sm"
+          className="flex items-center gap-2 bg-[var(--team-color)] hover:bg-[var(--team-color)]/90 text-white"
         >
           {isSubmitting ? (
             <>
-              <Loader className="mr-2 h-4 w-4 animate-spin" /> Saving...
+              <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              Submitting...
             </>
-          ) : isEditMode ? (
-            "Update Vendor"
           ) : (
-            "Save Vendor"
+            <>
+              <Store className="w-4 h-4" />
+              {isEditMode ? "Update Vendor" : "Create Vendor"}
+            </>
           )}
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onCancel}
+        >
+          Cancel
         </Button>
       </div>
     </form>

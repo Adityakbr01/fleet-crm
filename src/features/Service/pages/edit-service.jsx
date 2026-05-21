@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -18,7 +18,7 @@ import {
 import ServiceForm from "@/features/Service/forms/service-form";
 import SubServiceTable from "@/features/Service/components/sub-service-table";
 import { useQueryClient } from "@tanstack/react-query";
-import { ChevronLeft, Loader, Wrench } from "lucide-react";
+import { ArrowLeft, Loader, Wrench } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
@@ -254,35 +254,41 @@ const EditService = () => {
   }
 
   return (
-    <div className="max-w-7xl mx-auto p-4 space-y-6 bg-[#f8f9fa] min-h-screen">
-      {/* Navigation Header */}
-      <div className="flex items-center gap-2">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => navigate("/service")}
-          className="text-slate-600 hover:text-slate-900 px-2 h-8"
-        >
-          <ChevronLeft className="h-4 w-4 mr-1" /> Back to Services
-        </Button>
-      </div>
-
-      <Card className="border-none shadow-md bg-white overflow-hidden">
-        <CardHeader className="bg-slate-50 border-b border-slate-100 py-4 px-6 flex flex-row items-center gap-3">
-          <div className="p-2 bg-[var(--team-color)]/10 text-[var(--team-color)] rounded-lg">
-            <Wrench className="h-5 w-5" />
+    <div className="w-full space-y-1 p-4">
+      <Card>
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 p-4">
+          <div className="flex items-start gap-3">
+            <div className="w-5 h-5 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
+              <Wrench className="text-muted-foreground w-5 h-5" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <div>
+                  <h1 className="text-md font-semibold text-gray-900">
+                    Edit Services
+                  </h1>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Modify maintenance log parameters and sub-service billing items
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
-          <div>
-            <CardTitle className="text-lg font-bold text-slate-950">
-              Edit Services
-            </CardTitle>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              Modify maintenance log parameters and sub-service billing items
-            </p>
-          </div>
-        </CardHeader>
 
-        <CardContent className="p-6">
+          <Button
+            onClick={() => navigate("/service")}
+            variant="outline"
+            size="sm"
+            className="flex items-center gap-1 flex-shrink-0 mt-2 sm:mt-0"
+          >
+            <ArrowLeft className="w-3 h-3" />
+            Back
+          </Button>
+        </div>
+      </Card>
+
+      <Card>
+        <CardContent className="p-4">
           <ServiceForm
             formData={formData}
             onInputChange={handleInputChange}

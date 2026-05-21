@@ -570,8 +570,10 @@ const Home = () => {
                       </span>
                       <span className="text-xs text-slate-500">
                         {dateVal
-                          ? moment(dateVal).isValid()
-                            ? moment(dateVal).format("DD-MM-YY")
+                          ? moment(dateVal.replace(" IST", "")).isValid()
+                            ? moment(dateVal.replace(" IST", "")).format(
+                                "DD-MM-YY",
+                              )
                             : dateVal
                           : "N/A"}
                       </span>
@@ -613,10 +615,12 @@ const Home = () => {
                     </span>
                     <span className="text-xs text-slate-500">
                       {sync.last_performance_date
-                        ? moment(sync.last_performance_date).isValid()
-                          ? moment(sync.last_performance_date).format(
-                              "DD-MM-YY",
-                            )
+                        ? moment(
+                            sync.last_performance_date.replace(" IST", ""),
+                          ).isValid()
+                          ? moment(
+                              sync.last_performance_date.replace(" IST", ""),
+                            ).format("DD-MM-YY")
                           : sync.last_performance_date
                         : "N/A"}
                     </span>
@@ -649,8 +653,12 @@ const Home = () => {
                 {dashboardData.data.last_payments_sync.map((sync, i) => (
                   <div key={i} className="text-sm text-slate-700">
                     {sync.last_payment_date
-                      ? moment(sync.last_payment_date).isValid()
-                        ? moment(sync.last_payment_date).format("DD-MM-YY")
+                      ? moment(
+                          sync.last_payment_date.replace(" IST", ""),
+                        ).isValid()
+                        ? moment(
+                            sync.last_payment_date.replace(" IST", ""),
+                          ).format("DD-MM-YY")
                         : sync.last_payment_date
                       : "N/A"}
                   </div>
