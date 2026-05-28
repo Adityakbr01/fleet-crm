@@ -310,7 +310,7 @@ const ServiceForm = ({
           ) : (
             <>
               <Wrench className="w-4 h-4" />
-              {isEditMode ? "Update Service Log" : "Create Service Log"}
+              {isEditMode ? "Update Service" : "Create Service"}
             </>
           )}
         </Button>

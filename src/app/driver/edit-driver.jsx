@@ -421,16 +421,31 @@ const EditDriver = () => {
                       <SelectValue placeholder="Select UUID" />
                     </SelectTrigger>
                     <SelectContent>
-                      {pendingUuids?.map((item) => (
-                        <SelectItem
-                          key={item.id}
-                          value={
-                            item.uber_driver_uid || item.UUID || String(item.id)
-                          }
-                        >
-                          {item.uber_driver_uid || item.UUID || item.id}
-                        </SelectItem>
-                      ))}
+                      {pendingUuids?.map((item) => {
+                        const displayName =
+                          item.full_name ||
+                          item.driver_full_name ||
+                          item.driver_name ||
+                          item.fullname ||
+                          (item.name
+                            ? `${item.name} ${item.surname || ""}`.trim()
+                            : "") ||
+                          item.uber_driver_uid ||
+                          item.UUID ||
+                          item.id;
+                        return (
+                          <SelectItem
+                            key={item.id}
+                            value={
+                              item.uber_driver_uid ||
+                              item.UUID ||
+                              String(item.id)
+                            }
+                          >
+                            {displayName}
+                          </SelectItem>
+                        );
+                      })}
                       {driver.UUID &&
                         !pendingUuids?.find(
                           (i) =>
@@ -438,7 +453,9 @@ const EditDriver = () => {
                             driver.UUID,
                         ) && (
                           <SelectItem value={driver.UUID}>
-                            {driver.UUID}
+                            {driver.full_name ||
+                              `${driver.name} ${driver.surname || ""}`.trim() ||
+                              driver.UUID}
                           </SelectItem>
                         )}
                     </SelectContent>

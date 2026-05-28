@@ -403,7 +403,7 @@ const ServiceTable = ({
           </DropdownMenu>
           <Link to="/service/service-create" onClick={storeCurrentPage}>
             <Button variant="default">
-              <SquarePlus className="h-3 w-3 mr-2" /> Add Service
+              <SquarePlus className="h-3 w-3 mr-2" /> Create Service
             </Button>
           </Link>
         </div>

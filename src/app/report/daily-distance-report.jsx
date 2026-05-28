@@ -6,6 +6,7 @@ import Cookies from "js-cookie";
 import { Download, Loader, Search } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import moment from "moment";
 import {
   Dialog,
   DialogContent,
@@ -36,6 +37,94 @@ const COLUMNS = [
   { key: "distance_diff", label: "Distance Diff" },
 ];
 
+const getDetailRowData = (row) => {
+  if (!row) return {};
+
+  const findValue = (keys) => {
+    for (const key of keys) {
+      if (row[key] !== undefined && row[key] !== null) {
+        return row[key];
+      }
+    }
+    return null;
+  };
+
+  const dateVal = findValue([
+    "vehicle_date",
+    "date",
+    "performance_date",
+    "travel_date",
+    "created_at",
+    "trip_date",
+    "day",
+  ]);
+
+  const startTimeVal = findValue([
+    "start_time",
+    "vehicle_start_time",
+    "trip_start_time",
+    "start_hour",
+    "start",
+  ]);
+
+  const endTimeVal = findValue([
+    "end_time",
+    "vehicle_end_time",
+    "trip_end_time",
+    "end_hour",
+    "end",
+  ]);
+
+  const vehicleDistanceVal = findValue([
+    "vehicle_distance",
+    "distance",
+    "vehicle_dist",
+    "start_distance",
+  ]);
+
+  const tripDistanceVal = findValue([
+    "trip_distance",
+    "trip_dist",
+    "distance_trip",
+  ]);
+
+  let diffDistanceVal = findValue([
+    "difference_distance",
+    "distance_diff",
+    "diff_distance",
+    "diff",
+  ]);
+
+  if (diffDistanceVal === null) {
+    const vDist = parseFloat(vehicleDistanceVal || 0);
+    const tDist = parseFloat(tripDistanceVal || 0);
+    diffDistanceVal = vDist - tDist;
+  }
+
+  return {
+    date: dateVal,
+    startTime: startTimeVal,
+    endTime: endTimeVal,
+    vehicleDistance: vehicleDistanceVal,
+    tripDistance: tripDistanceVal,
+    differenceDistance: diffDistanceVal,
+  };
+};
+
+const formatTimeOnly = (value) => {
+  if (value === null || value === undefined || value === "") return "N/A";
+
+  const textValue = String(value).trim();
+  const timeMatch = textValue.match(
+    /\b(?:[01]?\d|2[0-3]):[0-5]\d(?::[0-5]\d)?(?:\s?[AP]M)?\b/i,
+  );
+
+  if (timeMatch) return timeMatch[0];
+
+  const parsedDate = moment(textValue);
+  return parsedDate.isValid() ? parsedDate.format("HH:mm:ss") : textValue;
+};
+
 const DailyDistanceReport = () => {
   const today = new Date().toISOString().split("T")[0];
   const firstDayOfMonth = new Date(
@@ -54,6 +143,7 @@ const DailyDistanceReport = () => {
 
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [detailData, setDetailData] = useState([]);
+  console.log("Detail Data:", detailData);
   const [isDetailLoading, setIsDetailLoading] = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState("");
 
@@ -392,31 +482,73 @@ const DailyDistanceReport = () => {
                 <Table>
                   <TableHeader>
                     <TableRow className="bg-muted/50">
-                      {Object.keys(detailData[0] || {}).map((header, idx) => (
-                        <TableHead
-                          key={idx}
-                          className="whitespace-nowrap font-semibold capitalize"
-                        >
-                          {header.replace(/_/g, " ")}
-                        </TableHead>
-                      ))}
+                      <TableHead className="whitespace-nowrap font-semibold">
+                        Date
+                      </TableHead>
+                      <TableHead className="whitespace-nowrap font-semibold">
+                        Start Time
+                      </TableHead>
+                      <TableHead className="whitespace-nowrap font-semibold">
+                        End Time
+                      </TableHead>
+                      <TableHead className="whitespace-nowrap font-semibold text-right">
+                        Vehicle Distance
+                      </TableHead>
+                      <TableHead className="whitespace-nowrap font-semibold text-right">
+                        Trip Distance
+                      </TableHead>
+                      <TableHead className="whitespace-nowrap font-semibold text-right">
+                        Difference Distance
+                      </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {detailData.map((row, index) => (
-                      <TableRow key={index} className="hover:bg-muted/50">
-                        {Object.values(row).map((val, cellIdx) => (
-                          <TableCell
-                            key={cellIdx}
-                            className="whitespace-nowrap"
-                          >
-                            {val !== null && val !== undefined
-                              ? String(val)
-                              : "N/A"}
+                    {detailData.map((row, index) => {
+                      const rowData = getDetailRowData(row);
+                      const formattedDate = rowData.date
+                        ? moment(rowData.date).isValid()
+                          ? moment(rowData.date).format("DD-MM-YYYY")
+                          : String(rowData.date)
+                        : "N/A";
+                      const vDistance =
+                        rowData.vehicleDistance !== null &&
+                        rowData.vehicleDistance !== undefined
+                          ? parseFloat(rowData.vehicleDistance).toFixed(2)
+                          : "0.00";
+                      const tDistance =
+                        rowData.tripDistance !== null &&
+                        rowData.tripDistance !== undefined
+                          ? parseFloat(rowData.tripDistance).toFixed(2)
+                          : "0.00";
+                      const diffDistance =
+                        rowData.differenceDistance !== null &&
+                        rowData.differenceDistance !== undefined
+                          ? parseFloat(rowData.differenceDistance).toFixed(2)
+                          : "0.00";
+
+                      return (
+                        <TableRow key={index} className="hover:bg-muted/50">
+                          <TableCell className="whitespace-nowrap">
+                            {formattedDate}
                           </TableCell>
-                        ))}
-                      </TableRow>
-                    ))}
+                          <TableCell className="whitespace-nowrap">
+                            {formatTimeOnly(rowData.startTime)}
+                          </TableCell>
+                          <TableCell className="whitespace-nowrap">
+                            {formatTimeOnly(rowData.endTime)}
+                          </TableCell>
+                          <TableCell className="whitespace-nowrap text-right">
+                            {vDistance}
+                          </TableCell>
+                          <TableCell className="whitespace-nowrap text-right">
+                            {tDistance}
+                          </TableCell>
+                          <TableCell className="whitespace-nowrap text-right font-medium">
+                            {diffDistance}
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
                   </TableBody>
                 </Table>
               </div>

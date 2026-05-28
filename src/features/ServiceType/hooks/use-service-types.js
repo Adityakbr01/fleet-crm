@@ -71,17 +71,18 @@ export const useUpdateServiceTypeStatus = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, status }) => {
-      const formData = new FormData();
-      formData.append("service_types_status", status);
       const response = await axios.patch(
         `${BASE_URL}/api/service-types-status/${id}/status`,
-        formData,
-        { headers: getHeaders("multipart/form-data") }
+        { service_types_status: status },
+        { headers: getHeaders() }
       );
       return response.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(["service-types"]);
+      queryClient.invalidateQueries({
+        queryKey: ["service-types"],
+        exact: false,
+      });
     },
   });
 };
