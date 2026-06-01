@@ -172,6 +172,10 @@ const NAVIGATION_CONFIG = {
           url: "/final-performance-report",
         },
         {
+          title: "Weekly Performance",
+          url: "/weekly-performance-report",
+        },
+        {
           title: "Vehicle Assignment",
           url: "/assignment-vehicle-report",
         },

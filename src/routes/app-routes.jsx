@@ -40,6 +40,7 @@ import DriverDetailsReport from "@/app/report/driver-details";
 import VehicleDetailsReport from "@/app/report/vehicle-details";
 import DriverPerfromanceReport from "@/app/report/driver-performance";
 import FinalDriverPerformanceReport from "@/app/report/final-performance";
+import WeeklyPerformanceReport from "@/app/report/weekly-performance";
 import CreateDriverPayment from "@/app/driver-payment/create-payment";
 import EditDriverPayment from "@/app/driver-payment/edit-payment";
 import DriverPaymentList from "@/app/driver-payment/payment-list";
@@ -380,6 +381,14 @@ function AppRoutes() {
           element={
             <Suspense fallback={<LoadingBar />}>
               <FinalDriverPerformanceReport />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/weekly-performance-report"
+          element={
+            <Suspense fallback={<LoadingBar />}>
+              <WeeklyPerformanceReport />
             </Suspense>
           }
         />
