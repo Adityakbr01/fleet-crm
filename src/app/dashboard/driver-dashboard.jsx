@@ -21,9 +21,16 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
+import WeeklyPerformanceTable, {
+  getWeekLabel,
+  getWeeklyClosing,
+  numberValue,
+  toWeeklyRows,
+} from "@/app/report/components/WeeklyPerformanceTable";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -64,6 +71,7 @@ const DriverDashboard = () => {
   const [isDetailsLoading, setIsDetailsLoading] = useState(false);
   const [selectedDriverVehicle, setSelectedDriverVehicle] = useState("");
   const [detailSearchQuery, setDetailSearchQuery] = useState("");
+  const [weeklySearchQuery, setWeeklySearchQuery] = useState("");
 
   const token = Cookies.get("token");
 
@@ -72,6 +80,7 @@ const DriverDashboard = () => {
       setIsDetailsLoading(true);
       setSelectedDriverForDetails(driverName);
       setSelectedDriverVehicle(vehicleNumber || "");
+      setWeeklySearchQuery("");
       
       const formData = new FormData();
       formData.append("full_name", driverName);
@@ -486,6 +495,27 @@ const DriverDashboard = () => {
     });
   }, [mergedDailyData, detailSearchQuery]);
 
+  const weeklyPerformanceRows = useMemo(() => {
+    return toWeeklyRows(
+      details?.lasttenweek ||
+        details?.lastTenWeek ||
+        details?.last_ten_week ||
+        details?.latestweek ||
+        details?.latestWeek ||
+        details?.latest_week ||
+        [],
+    );
+  }, [details]);
+
+  const filteredWeeklyPerformanceRows = useMemo(() => {
+    if (!weeklySearchQuery) return weeklyPerformanceRows;
+
+    const search = weeklySearchQuery.toLowerCase();
+    return weeklyPerformanceRows.filter((row, index) =>
+      getWeekLabel(row, index).toLowerCase().includes(search),
+    );
+  }, [weeklyPerformanceRows, weeklySearchQuery]);
+
   const exportDetailToExcel = async () => {
     if (!filteredDailyData || filteredDailyData.length === 0) {
       toast.error("No daily data to export");
@@ -558,6 +588,116 @@ const DriverDashboard = () => {
     }
   };
 
+  const exportWeeklyPerformanceToExcel = async () => {
+    if (!filteredWeeklyPerformanceRows.length) {
+      toast.error("No weekly data to export");
+      return;
+    }
+
+    try {
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet("Weekly Performance");
+      const headers = [
+        "Week",
+        "Opening",
+        "MBG",
+        "Acc%",
+        "Tot Earn",
+        "Rev Inc",
+        "Add Inc",
+        "Tot Coll",
+        "Tot CD",
+        "Tot QD",
+        "Cash Bal",
+        "Tot Payout",
+        "Payout Adj",
+        "Credit",
+        "Debit",
+        "Cust Trips",
+        "Final Payout",
+        "Paid",
+        "Closing",
+      ];
+
+      worksheet.mergeCells(1, 1, 1, headers.length);
+      const titleCell = worksheet.getCell(1, 1);
+      titleCell.value = `Weekly Performance Report: ${selectedDriverForDetails}`;
+      titleCell.font = { bold: true, size: 14 };
+      titleCell.alignment = { horizontal: "center", vertical: "middle" };
+
+      worksheet.mergeCells(2, 1, 2, headers.length);
+      const subTitleCell = worksheet.getCell(2, 1);
+      subTitleCell.value = `Generated on: ${new Date().toLocaleDateString()}`;
+      subTitleCell.alignment = { horizontal: "center", vertical: "middle" };
+
+      const headerRow = worksheet.getRow(4);
+      headerRow.values = headers;
+      headerRow.font = { bold: true };
+      headerRow.eachCell((cell) => {
+        cell.fill = {
+          type: "pattern",
+          pattern: "solid",
+          fgColor: { argb: "FFEAF2FF" },
+        };
+        cell.alignment = { horizontal: "center", vertical: "middle" };
+        cell.border = {
+          top: { style: "thin" },
+          left: { style: "thin" },
+          bottom: { style: "thin" },
+          right: { style: "thin" },
+        };
+      });
+
+      filteredWeeklyPerformanceRows.forEach((row, index) => {
+        worksheet.addRow([
+          getWeekLabel(row, index),
+          numberValue(row.opening_balance),
+          numberValue(row.mbg),
+          `${row.acceptence || 0}%`,
+          numberValue(row.totalearings),
+          numberValue(row.totalrevenue),
+          numberValue(row.additionalIncentive),
+          numberValue(row.totalCashCollected),
+          numberValue(row.totalCashDepositAmount),
+          numberValue(row.totalQRDepositAmount),
+          numberValue(row.cashBalance),
+          numberValue(row.totalPayout),
+          numberValue(row.payoutAdj),
+          numberValue(row.totalCreditAmount),
+          numberValue(row.totalDebiitAmount),
+          numberValue(row.totalCustomerTipsAmount),
+          numberValue(row.finalPayout),
+          numberValue(row.driver_payment),
+          getWeeklyClosing(row),
+        ]);
+      });
+
+      worksheet.columns.forEach((column, index) => {
+        column.width = index === 0 ? 18 : 16;
+      });
+
+      const buffer = await workbook.xlsx.writeBuffer();
+      const blob = new Blob([buffer], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
+      const fileDriver = String(selectedDriverForDetails || "driver")
+        .trim()
+        .replace(/[^a-z0-9_-]+/gi, "_")
+        .replace(/^_+|_+$/g, "");
+
+      saveAs(
+        blob,
+        `weekly_performance_${fileDriver || "driver"}_${
+          new Date().toISOString().split("T")[0]
+        }.xlsx`,
+      );
+      toast.success("Weekly report exported to Excel");
+    } catch (error) {
+      console.error("Export error:", error);
+      toast.error("Failed to export weekly report");
+    }
+  };
+
   if (selectedDriverForDetails) {
     return (
       <div className="w-full min-w-0 py-6 pb-20 space-y-6">
@@ -570,6 +710,7 @@ const DriverDashboard = () => {
                 setDriverDetailsData(null);
                 setSelectedDriverVehicle("");
                 setDetailSearchQuery("");
+                setWeeklySearchQuery("");
               }}
               variant="outline"
               size="sm"
@@ -782,6 +923,17 @@ const DriverDashboard = () => {
               </Card>
             </div>
 
+            <Tabs defaultValue="last-10-days" className="space-y-6">
+              <TabsList className="grid w-full max-w-md grid-cols-2">
+                <TabsTrigger value="last-10-days">
+                  Last 10 Days Performance
+                </TabsTrigger>
+                <TabsTrigger value="weekly-performance">
+                  Weekly Performance
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="last-10-days" className="space-y-6">
             {/* Stacked Vertical Charts Section - last 10 Days */}
             <div className="space-y-6">
               <div className="flex justify-between items-center border-b pb-2">
@@ -907,6 +1059,56 @@ const DriverDashboard = () => {
                 <span>Total of {mergedDailyData.length} records</span>
               </div>
             </Card>
+              </TabsContent>
+
+              <TabsContent value="weekly-performance" className="space-y-6">
+                <Card className="border border-slate-200 shadow-sm bg-white overflow-hidden">
+                  <CardHeader className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 space-y-0 pb-4 border-b border-slate-50">
+                    <div>
+                      <CardTitle className="text-lg font-bold text-slate-800">
+                        Weekly Performance
+                      </CardTitle>
+                      <p className="text-xs text-slate-500">
+                        Latest weekwise performance summary
+                      </p>
+                    </div>
+                    <div className="flex flex-col sm:flex-row gap-2 w-full lg:w-auto">
+                      <div className="relative w-full sm:w-64">
+                        <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-slate-400" />
+                        <Input
+                          placeholder="Search week..."
+                          value={weeklySearchQuery}
+                          onChange={(e) => setWeeklySearchQuery(e.target.value)}
+                          className="pl-8 h-8 text-xs border-slate-200 bg-white"
+                        />
+                      </div>
+                      <Button
+                        onClick={exportWeeklyPerformanceToExcel}
+                        variant="outline"
+                        size="sm"
+                        disabled={!filteredWeeklyPerformanceRows.length}
+                        className="h-8 text-xs flex items-center gap-1.5 border-slate-200 hover:bg-slate-50"
+                      >
+                        <FileSpreadsheet className="h-3.5 w-3.5 text-emerald-600" />
+                        Export
+                      </Button>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="p-4">
+                    <WeeklyPerformanceTable
+                      reportData={filteredWeeklyPerformanceRows}
+                      emptyMessage="No weekly performance data available"
+                    />
+                  </CardContent>
+                  <div className="px-4 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-[10px] text-slate-400 font-medium italic">
+                    <span>
+                      Showing {filteredWeeklyPerformanceRows.length} weekly rows
+                    </span>
+                    <span>Total of {weeklyPerformanceRows.length} records</span>
+                  </div>
+                </Card>
+              </TabsContent>
+            </Tabs>
           </>
         ) : (
           <Card className="border-none shadow-md bg-white">
