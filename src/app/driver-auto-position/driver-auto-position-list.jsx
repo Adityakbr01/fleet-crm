@@ -39,7 +39,7 @@ import {
 import axios from "axios";
 import Cookies from "js-cookie";
 import { ArrowUpDown, ChevronDown, ChevronLeft, ChevronRight, Edit, Search, Trash2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import CreateDriverAutoPosition from "./create-driver-auto-position";

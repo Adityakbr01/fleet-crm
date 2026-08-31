@@ -39,7 +39,7 @@ import {
 import axios from "axios";
 import Cookies from "js-cookie";
 import { ArrowUpDown, ChevronDown, ChevronLeft, ChevronRight, Search, Trash2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import CreateDriverActivity from "./create-driver-activity";
 

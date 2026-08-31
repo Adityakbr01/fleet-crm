@@ -45,7 +45,7 @@ import {
   ToggleLeft,
   ToggleRight,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import ImageCell from "@/components/common/ImageCell";
 import { getImageBaseUrl, getNoImageUrl } from "@/utils/imageUtils";

@@ -3,7 +3,7 @@ import { useFetchServiceTypes, useUpdateServiceTypeStatus } from "@/features/Ser
 import ServiceTypeTable from "@/features/ServiceType/components/service-type-table";
 import { useQueryClient } from "@tanstack/react-query";
 import Cookies from "js-cookie";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 

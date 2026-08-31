@@ -3,7 +3,7 @@ import { useFetchVendors, useUpdateVendorStatus } from "@/features/Vendor/hooks/
 import VendorTable from "@/features/Vendor/components/vendor-table";
 import { useQueryClient } from "@tanstack/react-query";
 import Cookies from "js-cookie";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
